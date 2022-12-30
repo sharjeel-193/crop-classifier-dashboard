@@ -1,23 +1,27 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
+import time
 from matplotlib import pyplot as plt
+import random
+from trace_model import inference, load_model
 
-st.title("AgroVision")
+st.title("Tomato Sense")
 st.write("---")
 st.subheader("Test Our Model")
 st.write("---")
 
-user_img = st.file_uploader("Upload your image", type=['png', 'tif'])
+user_img = st.file_uploader("Upload your image")
+model = load_model('model.pt')
 
 if user_img:
-    user_img = Image.open(user_img)
-    user_img_data = np.asarray(user_img)
-    # st.image(user_img_data, caption="Original", width=600, use_column_width=True, clamp=True)
-
+    user_img_file = Image.open(user_img)
+    user_img_data = np.asarray(user_img_file)
+    
+    name = user_img.name
     # Extract the red and NIR bands from the image data
     red = user_img_data[:,:,0]
-    nir = user_img_data[:,:,3]
+    nir = user_img_data[:,:,2]
 
     # Calculate the NDVI values for each pixel
     ndvi = (nir - red) / (nir + red)
@@ -25,4 +29,9 @@ if user_img:
     colored_image = cm(ndvi)
     heatmap_img = Image.fromarray((colored_image * 255).astype(np.uint8))
 
-    st.image(heatmap_img, caption="NDVI Heatmap", width=600, use_column_width=True, clamp=True)
+    class_dis = inference(model, user_img)
+    with st.spinner('Wait for it...'):
+        time.sleep(5)
+    st.header(class_dis.upper())
+    
+
