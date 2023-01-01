@@ -32,6 +32,18 @@ if user_img:
     class_dis = inference(model, user_img)
     with st.spinner('Wait for it...'):
         time.sleep(5)
-    st.header(class_dis.upper())
+    
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("HEATMAP")
+        st.image(heatmap_img)
+
+    with col2:
+        st.write("PREDICTION")
+        st.header(class_dis.upper())
+
+    
+    
     
 
